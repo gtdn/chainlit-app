@@ -2,10 +2,9 @@ import chainlit as cl
 
 
 class ChatUI:
-    def __init__(self, openai_provider, router_llm, ocr_client):
+    def __init__(self, openai_provider, router_llm):
         self.openai_provider = openai_provider
         self.router_llm = router_llm
-        self.ocr_client = ocr_client
         cl.on_chat_start(self.start)
         cl.on_message(self.on_message)
 
@@ -29,11 +28,11 @@ class ChatUI:
         await msg.send()
 
         #### ROUTING #####
-        model_routed = await self.router_llm.route(message.content)
+        model_routed = self.router_llm.route(message.content)
         print(f"Routed to model: {model_routed}")
         ##################
 
-        response = await self.openai_provider.completion_tools(
+        response = self.openai_provider.completion_tools(
             messages=history, model=model_routed
         )
         choice = response.choices[0].message
@@ -60,8 +59,8 @@ class ChatUI:
             if token := part.choices[0].delta.content or "":
                 await msg.stream_token(token)
 
-        msg.content += f"\n\n*— Modèle`{model_routed}`*"
-        await msg.update()
-
         history.append({"role": "assistant", "content": msg.content})
         cl.user_session.set("history", history)
+
+        msg.content += f"\n\n*— Modèle`{model_routed}`*"
+        await msg.update()

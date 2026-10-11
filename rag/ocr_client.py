@@ -3,6 +3,8 @@ import logging
 import uuid
 from paddleocr import PaddleOCR
 
+
+logger = logging.getLogger(__name__)
 logging.getLogger("ppocr").setLevel(logging.ERROR)
 
 
