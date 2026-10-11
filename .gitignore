@@ -1,1 +1,7 @@
 .env
+__pycache__/*
+.venv
+.files/
+documents_rag/chroma-data/
+.chainlit/
+documents_rag/__pycache__/*
