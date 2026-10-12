@@ -3,6 +3,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class RagTool(Tool):
     name = "query_chroma"
     description = (
@@ -23,18 +24,18 @@ class RagTool(Tool):
 
     def __init__(
         self,
-        embedder,
+        embeddings_client,
         vector_store,
         n_results: int = 5,
         max_distance: float = 1.0,
     ):
-        self.embedder = embedder
+        self.embedding_client = embeddings_client
         self.vector_store = vector_store
         self.n_results = n_results
         self.max_distance = max_distance
 
     def run(self, query):
-        embedding = self.embedder.get_embeddings(query)
+        embedding = self.embedding_client.get_embeddings(query)
 
         hits = self.vector_store.search(embedding, n_results=self.n_results)
 

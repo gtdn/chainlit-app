@@ -1,8 +1,8 @@
-from openai import OpenAI, AsyncOpenAI
-import os
-from dotenv import load_dotenv
+import logging
 
-load_dotenv()
+from openai import OpenAI, AsyncOpenAI
+
+logger = logging.getLogger(__name__)
 
 
 class OpenAIClient:

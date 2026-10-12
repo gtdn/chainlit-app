@@ -25,18 +25,21 @@ class ChromaDB:
             host=settings.chroma_host,
             port=settings.chroma_port,
         )
-        
+
     def _get_or_create_collection(self, collection_name):
         return self.client.get_or_create_collection(name=collection_name)
 
     def view_collection(self, collection_name):
         collection = self.client.get_collection(collection_name)
-        print(collection.peek())
-        self.collection = collection
+        logging.info(collection.peek())
+        self.collection = collection.peek()
 
     def add_documents(self, documents):
         if not self.collection:
-            raise ValueError("Collection not initialized. Call connect() first.")
+            raise ValueError("Collection not initialized")
+
+        if not documents:
+            return
 
         self.collection.add(
             ids=[doc["id"] for doc in documents],
@@ -45,8 +48,10 @@ class ChromaDB:
             embeddings=[doc["vector"] for doc in documents],
         )
 
-    def search(self, embedding, n_results: int = 5):
+    def remove_collection(self, collection_name):
+        self.client.delete_collection(collection_name)
 
+    def search(self, embedding, n_results: int = 5):
         results = self.collection.query(
             query_embeddings=[embedding],
             n_results=n_results,

@@ -11,12 +11,12 @@ from rag.chroma_db import ChromaDB
 settings = get_settings()
 
 chroma_db = ChromaDB.from_settings(settings)
-embeddings_client = EmbeddingsClient(settings.embedding_model)
+embeddings_client = EmbeddingsClient(settings)
 
 tools = ToolRegistry(
     [
         RagTool(
-            embedder=embeddings_client,
+            embeddings_client=embeddings_client,
             vector_store=chroma_db,
             n_results=settings.rag_n_results,
             max_distance=settings.rag_max_distance,

@@ -1,7 +1,9 @@
 .env
-__pycache__/*
+**/__pycache__/
 .venv
 .files/
-documents_rag/chroma-data/
+rag/chroma-data/
 .chainlit/
-documents_rag/__pycache__/*
+
+data/
+chainlit.md

@@ -1,4 +1,5 @@
 import json
+import logging
 
 
 class RouterLLM:
@@ -42,8 +43,8 @@ class RouterLLM:
             model = self._completion(prompt)
             data = json.loads(model)
             model = data.get("model", self.default_model)
-            print(f"Routing model: {model}")
-            print(f"Available models: {model in self.catalog_models}")
+            logging.info(f"Routing model: {model}")
+            logging.info(f"Available models: {model in self.catalog_models}")
             return model if model in self.catalog_models else self.default_model
         except Exception:
             return self.default_model

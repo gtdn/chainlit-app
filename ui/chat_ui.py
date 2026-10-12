@@ -1,4 +1,5 @@
 import chainlit as cl
+import logging
 
 
 class ChatUI:
@@ -29,7 +30,7 @@ class ChatUI:
 
         #### ROUTING #####
         model_routed = self.router_llm.route(message.content)
-        print(f"Routed to model: {model_routed}")
+        logging.info(f"Routed to model: {model_routed}")
         ##################
 
         response = self.openai_provider.completion_tools(

@@ -9,17 +9,16 @@ logging.getLogger("ppocr").setLevel(logging.ERROR)
 
 
 class OCRClient:
-    def __init__(self, embedding_client):
+    def __init__(self, settings, embedding_client):
         self.ocr = PaddleOCR(use_angle_cls=True, lang="fr")
         self.embedding_client = embedding_client
-        self.embedding_model = "nomic-embed-text:137m-v1.5-fp16"
-        self.chunk_size = 1000
-        self.chunk_overlap = 100
+        self.embedding_model = settings.embedding_model
+        self.chunk_size = settings.chunk_size
+        self.chunk_overlap = settings.chunk_overlap
 
     def _extract_text(self, file_path):
-        print(f"Extraction du texte du document : {file_path}")
+        logging.info(f"Extraction du texte du document : {file_path}")
         result = self.ocr.ocr(file_path)
-
         if not result or result[0] is None:
             return ""
 
@@ -29,7 +28,7 @@ class OCRClient:
                 text = detection[1][0]
                 lines.append(text)
 
-        print(f"Texte extrait : {len(lines)} lignes")
+        logging.info(f"Texte extrait : {len(lines)} lignes")
 
         return "\n".join(lines)
 
@@ -52,12 +51,9 @@ class OCRClient:
         return chunks
 
     def _embed(self, text):
-        response = self.embedding_client.embeddings.create(
-            model=self.embedding_model,
-            input=text,
-            encoding_format="float",
+        return self.embedding_client.get_embeddings(
+            text=text,
         )
-        return response.data[0].embedding
 
     def process_document(self, file_path):
         if not os.path.exists(file_path):
@@ -66,7 +62,7 @@ class OCRClient:
         text = self._extract_text(file_path)
 
         if not text:
-            print(f"Aucun texte extrait pour {file_path}")
+            logging.warning(f"Aucun texte extrait pour {file_path}")
             return []
 
         chunks = self._chunk_text(text)
