@@ -35,9 +35,17 @@ class RagTool(Tool):
         self.max_distance = max_distance
 
     def run(self, query):
-        embedding = self.embedding_client.get_embeddings(query)
+        embedding = self.embedding_client.embed_query(query)
 
         hits = self.vector_store.search(embedding, n_results=self.n_results)
+
+        for h in hits:
+            logger.info(
+                "distance=%.3f | %s | %s",
+                h["distance"],
+                h["source"],
+                h["text"][:60].replace("\n", " "),
+            )
 
         relevant = [h for h in hits if h["distance"] <= self.max_distance]
 

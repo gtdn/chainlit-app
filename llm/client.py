@@ -1,34 +1,33 @@
 import logging
-
 from openai import OpenAI, AsyncOpenAI
+
+from llm.prompt import SYSTEM_PROMPT
 
 logger = logging.getLogger(__name__)
 
 
 class OpenAIClient:
-    def __init__(self, settings=None, tools=None):
+    def __init__(self, settings, tools=None):
         self.client = OpenAI(
             base_url=settings.llm_base_url, api_key=settings.llm_api_key
         )
         self.async_client = AsyncOpenAI(
             base_url=settings.llm_base_url, api_key=settings.llm_api_key
         )
-        self.prompt_system = self._get_prompt_system()
+        self.prompt_system = SYSTEM_PROMPT
+        self.default_model = settings.default_model
         self.tools = tools
-
-    def _get_prompt_system(self):
-        return """
-            You are a helpful assistant specialist of giving advices about camping gears, for the compagny Contoso : backpacks, tents, accesoiries
-            So answer witht the speficics products we sell, use your tool for that. Use many emojis to be friendly.
-        """
 
     def completion(
         self,
         prompt_system=None,
         prompt=None,
-        model="llama3.2:latest",
+        model=None,
         response_format=None,
     ):
+        if not model:
+            model = self.default_model
+
         response = self.client.chat.completions.create(
             model=model,
             messages=[
@@ -42,7 +41,10 @@ class OpenAIClient:
         )
         return response.choices[0].message.content
 
-    async def completion_stream(self, messages, model="llama3.2:latest"):
+    async def completion_stream(self, messages, model):
+        if not model:
+            model = self.default_model
+
         stream = await self.async_client.chat.completions.create(
             model=model,
             messages=messages,
@@ -51,7 +53,10 @@ class OpenAIClient:
         async for chunk in stream:
             yield chunk
 
-    def completion_tools(self, messages, model="llama3.2:latest"):
+    def completion_tools(self, messages, model):
+        if not model:
+            model = self.default_model
+
         response = self.client.chat.completions.create(
             model=model,
             messages=messages,

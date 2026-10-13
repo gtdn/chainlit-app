@@ -1,6 +1,6 @@
 import os
 import logging
-import uuid
+import hashlib
 from paddleocr import PaddleOCR
 
 
@@ -51,9 +51,7 @@ class OCRClient:
         return chunks
 
     def _embed(self, text):
-        return self.embedding_client.get_embeddings(
-            text=text,
-        )
+        return self.embedding_client.embed_document(text)
 
     def process_document(self, file_path):
         if not os.path.exists(file_path):
@@ -66,16 +64,17 @@ class OCRClient:
             return []
 
         chunks = self._chunk_text(text)
+        source = os.path.basename(file_path)
 
         results = []
-        for chunk in chunks:
+        for index, chunk in enumerate(chunks):
             vector = self._embed(chunk)
             results.append(
                 {
-                    "id": str(uuid.uuid4()),
+                    "id": hashlib.sha256(f"{source}:{index}".encode()).hexdigest(),
                     "text": chunk,
                     "vector": vector,
-                    "source": os.path.basename(file_path),
+                    "source": source,
                 }
             )
 

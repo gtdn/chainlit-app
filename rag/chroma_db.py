@@ -32,7 +32,9 @@ class ChromaDB:
     def view_collection(self, collection_name):
         collection = self.client.get_collection(collection_name)
         logging.info(collection.peek())
-        self.collection = collection.peek()
+
+    def delete_source(self, source):
+        self.collection.delete(where={"source": source})
 
     def add_documents(self, documents):
         if not self.collection:
@@ -41,7 +43,7 @@ class ChromaDB:
         if not documents:
             return
 
-        self.collection.add(
+        self.collection.upsert(
             ids=[doc["id"] for doc in documents],
             documents=[doc["text"] for doc in documents],
             metadatas=[{"source": doc["source"]} for doc in documents],

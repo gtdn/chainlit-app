@@ -1,5 +1,6 @@
 import json
 import logging
+from llm.prompt import build_router_prompt
 
 
 class RouterLLM:
@@ -7,28 +8,22 @@ class RouterLLM:
         self.openai_client = openai_client
         self.default_model = settings.default_model
         self.routing_model = settings.routing_model
+
+        self.big = settings.default_model
+        self.medium = settings.routing_model
+        self.small = settings.small_model
+
         self.catalog_models = {
-            "groq/qwen/qwen3.8-27b": "Big modèle for complex tasks, tools callings, code. Expensive, use only for complex tasks.",
-            "groq/openai/gpt-oss-20b": "Medium modele for medium complex tasks, tools callings, generate code. Moderate cost, suitable for most tasks.",
-            "groq/openai/gpt-oss-20b": "Small modele for just for simple answers and super simple tasks. Cheap, use for simple tasks.",
+            self.big: "Big modèle for complex tasks, tools callings, code. Expensive, use only for complex tasks.",
+            self.medium: "Medium modele for medium complex tasks, tools callings, generate code. Moderate cost, suitable for most tasks.",
+            self.small: "Small modele for just for simple answers and super simple tasks. Cheap, use for simple tasks.",
         }
-        self.prompt_system = self._get_prompt_system()
-
-    def _get_prompt_system(self):
-        return f"""
-            You are a router for LLM requests. You will receive a request and determine which LLM provider to use based on the request content. 
-            You will then forward the request to the appropriate LLM provider and return the response.
-            Choose the LLM according to the complexity, to not overload the big models with simple requests.
-
-            Tools availables : RAG for informations about campings gears (tents, backpacks, accesories)
-            
-            LLM availables:
-            {self.catalog_models}
-
-            Never answer the content of the request. 
-            Only respond with a JSON strictly in the form:
-            {{"model": "<exact name of the chosen model>"}}
-        """
+        self.prompt_system = build_router_prompt(
+            catalog=self.catalog_models,
+            big=self.big,
+            medium=self.medium,
+            small=self.small,
+        )
 
     def _completion(self, prompt):
         return self.openai_client.completion(

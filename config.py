@@ -16,8 +16,9 @@ class Settings(BaseSettings):
 
     # --- Modèles ------------------------------------------------------------
     default_model: str = "groq/qwen/qwen3.8-27b"
-    routing_model: str = "groq/openai/gpt-oss-20b"
+    medium_model: str = "groq/openai/gpt-oss-20b"
     small_model: str = "llama3.2:latest"
+    routing_model: str = "groq/openai/gpt-oss-20b"
 
     # --- Embeddings ---------------------------------------------------------
     embedding_model: str = "nomic-embed-text:137m-v1.5-fp16"

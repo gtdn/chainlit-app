@@ -11,7 +11,7 @@ from rag.ocr_client import OCRClient
 from rag.chroma_db import ChromaDB
 
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, force=True)
 
 
 def parse_args():
@@ -38,9 +38,11 @@ def main(document_path):
         logging.info(f"Temps total   : {elapsed:.2f}s")
 
         logging.info(f"Ingestion du {file_path} dans la base chroma DB")
+        source = os.path.basename(file_path)
+        chroma_db.delete_source(source)
         chroma_db.add_documents(chunks)
 
-    chroma_db.view_collection("rag_collection")
+    chroma_db.view_collection(settings.chroma_collection)
 
 
 if __name__ == "__main__":

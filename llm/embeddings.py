@@ -1,5 +1,4 @@
 import logging
-
 from openai import OpenAI
 
 
@@ -13,7 +12,13 @@ class EmbeddingsClient:
         )
         self.model = settings.embedding_model
 
-    def get_embeddings(self, text):
+    def _get_embeddings(self, text):
         response = self.client.embeddings.create(input=text, model=self.model)
 
         return response.data[0].embedding
+
+    def embed_document(self, text):
+        return self._get_embeddings(f"search_document: {text}")
+
+    def embed_query(self, text):
+        return self._get_embeddings(f"search_query: {text}")
